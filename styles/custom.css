@@ -1,0 +1,165 @@
+/* ─── OCR Knowledge Base — Custom Streamlit CSS ─── */
+
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+
+/* ─── Global ─── */
+[data-testid="stAppViewContainer"] {
+    font-family: 'Inter', 'Noto Sans Thai', sans-serif;
+    background: linear-gradient(135deg, #0f0c29 0%, #1a1a3e 50%, #24243e 100%);
+    color: #e0e0e0;
+}
+
+[data-testid="stSidebar"] {
+    background: rgba(15, 12, 41, 0.95);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-testid="stSidebar"] [data-testid="stMarkdown"] {
+    color: #c0c0d0;
+}
+
+/* ─── Headers ─── */
+h1, h2, h3, h4 {
+    font-weight: 700 !important;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h1 {
+    font-size: 2rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* ─── Cards / Containers ─── */
+[data-testid="stExpander"] {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+div[data-testid="stMetric"] {
+    background: rgba(102, 126, 234, 0.08);
+    border: 1px solid rgba(102, 126, 234, 0.15);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+/* ─── Buttons ─── */
+[data-testid="stButton"] > button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+[data-testid="stButton"] > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+/* ─── File Uploader ─── */
+[data-testid="stFileUploader"] {
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px dashed rgba(102, 126, 234, 0.3);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+[data-testid="stFileUploader"]:hover {
+    border-color: rgba(102, 126, 234, 0.6);
+}
+
+/* ─── Text Input / Search ─── */
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border-radius: 8px !important;
+    color: #e0e0e0 !important;
+    font-family: 'Inter', 'Noto Sans Thai', sans-serif !important;
+}
+
+[data-testid="stTextInput"] input:focus,
+[data-testid="stTextArea"] textarea:focus {
+    border-color: #667eea !important;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* ─── Chat Messages ─── */
+[data-testid="stChatMessage"] {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ─── Dividers ─── */
+hr {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ─── Success / Info / Warning alerts ─── */
+[data-testid="stAlert"] {
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+/* ─── Spinner ─── */
+[data-testid="stSpinner"] {
+    color: #667eea;
+}
+
+/* ─── Score Badge ─── */
+.score-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.15rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* ─── Source Card ─── */
+.source-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
+
+.source-card:hover {
+    border-color: rgba(102, 126, 234, 0.3);
+    background: rgba(102, 126, 234, 0.05);
+}
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
+}

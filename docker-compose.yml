@@ -1,0 +1,37 @@
+# Ollama runs on the host (install from https://ollama.com). Start it before the app.
+# From inside the app container, the host is reachable as host.docker.internal (see extra_hosts).
+services:
+  app:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OCR_MODEL=scb10x/typhoon-ocr1.5-3b:latest
+      - LLM_MODEL=qwen3:1.7b
+      - EMBEDDING_MODEL=nomic-embed-text
+      - RERANKER_MODEL=dengcao/Qwen3-Reranker-4B:Q8_0
+      - QDRANT_COLLECTION=documents
+      - CHUNK_SIZE=600
+      - CHUNK_OVERLAP=100
+    volumes:
+      - ./:/app
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  qdrant_data:

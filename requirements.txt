@@ -1,0 +1,27 @@
+# UI
+streamlit>=1.32.0
+
+# OCR & File Parsing
+Pillow>=10.0.0
+pdf2image>=1.16.0
+PyPDF2>=3.0.0
+pycryptodome>=3.20.0
+python-docx>=1.1.0
+openpyxl>=3.1.0
+
+# Vector Database
+qdrant-client>=1.7.0
+
+# BM25
+rank-bm25>=0.2.2
+
+# LLM (Ollama via OpenAI-compatible API)
+openai>=1.12.0
+
+# Text Processing
+tiktoken>=0.6.0
+rapidfuzz>=3.6.0
+
+# Utilities
+python-dotenv>=1.0.0
+requests>=2.31.0
