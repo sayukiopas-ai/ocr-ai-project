@@ -3,8 +3,6 @@
 services:
   app:
     build: .
-    ports:
-      - "8501:8501"
     environment:
       - OLLAMA_BASE_URL=http://host.docker.internal:11434
       - QDRANT_HOST=qdrant
@@ -25,13 +23,23 @@ services:
     depends_on:
       - qdrant
     restart: unless-stopped
+    labels:
+      caddy: webdev2.vayupak.net
+      caddy.reverse_proxy: "{{upstreams 8501}}"
+    networks:
+      - caddy-public
+      - default
 
   qdrant:
     image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
     volumes:
       - qdrant_data:/qdrant/storage
+    networks:
+      - default
+
+networks:
+  caddy-public:
+    external: true
 
 volumes:
   qdrant_data:

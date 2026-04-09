@@ -1,0 +1,44 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy via SSH
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+
+            echo "🔍 Checking Caddy network..."
+            docker network inspect caddy-public >/dev/null 2>&1 || {
+              echo "❌ caddy-public network not found!"
+              echo "   Run the setup script first: bash infra/setup-server.sh"
+              exit 1
+            }
+
+            echo "📂 Navigating to project directory..."
+            cd ${{ secrets.PROJECT_PATH }}
+
+            echo "⬇️ Pulling latest code..."
+            git pull origin main
+
+            echo "🔨 Rebuilding and restarting containers..."
+            docker compose up --build -d
+
+            echo "🧹 Cleaning up old images..."
+            docker image prune -f
+
+            echo "✅ Deployment complete!"
+            docker compose ps

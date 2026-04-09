@@ -1,0 +1,25 @@
+# Caddy Reverse Proxy — shared infrastructure for all projects
+# Run ONCE on the server: docker compose up -d
+# Uses caddy-docker-proxy: auto-discovers containers via Docker labels.
+# HTTPS is automatic — no email or config needed.
+
+services:
+  caddy:
+    image: lucaslorentz/caddy-docker-proxy:2.9
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - caddy_data:/data
+    networks:
+      - caddy-public
+
+networks:
+  caddy-public:
+    name: caddy-public
+
+volumes:
+  caddy_data:
