@@ -146,12 +146,17 @@ def bm25_search(
 
     scores = index.get_scores(tokenized_query)
 
-    # Pair scores with documents and sort
-    scored_docs = [
-        {**doc, "score": float(score)}
-        for doc, score in zip(docs, scores)
-        if score > 0
-    ]
+    # Pair scores with documents and sort.
+    # BM25Plus assigns non-zero scores to ALL docs via its delta parameter;
+    # require at least one query token to appear in the document text.
+    query_token_set = set(tokenized_query)
+    scored_docs = []
+    for doc, score in zip(docs, scores):
+        if score <= 0:
+            continue
+        combined = f"{doc.get('source', '')} {doc.get('text', '')}".lower()
+        if any(tok in combined for tok in query_token_set):
+            scored_docs.append({**doc, "score": float(score)})
 
     if not scored_docs:
         return []
