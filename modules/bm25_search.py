@@ -9,7 +9,7 @@ substring queries like "พรบ" match "พระราชบัญญัต�
 import re
 from typing import Optional
 
-from rank_bm25 import BM25Okapi
+from rank_bm25 import BM25Plus
 
 from modules import vector_store
 
@@ -92,7 +92,7 @@ def _tokenize_query(query: str) -> list[str]:
     return tokens
 
 
-def build_bm25_index() -> tuple[Optional[BM25Okapi], list[dict]]:
+def build_bm25_index() -> tuple[Optional[BM25Plus], list[dict]]:
     """
     Build a BM25 index from all stored documents in Qdrant.
 
@@ -112,14 +112,14 @@ def build_bm25_index() -> tuple[Optional[BM25Okapi], list[dict]]:
         combined = f"{source} {text}"
         tokenized.append(_tokenize(combined))
 
-    index = BM25Okapi(tokenized)
+    index = BM25Plus(tokenized)
     return index, docs
 
 
 def bm25_search(
     query: str,
     limit: int = 20,
-    index: Optional[BM25Okapi] = None,
+    index: Optional[BM25Plus] = None,
     docs: Optional[list[dict]] = None,
 ) -> list[dict]:
     """
