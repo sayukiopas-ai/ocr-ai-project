@@ -153,5 +153,27 @@ def bm25_search(
         if score > 0
     ]
 
+    if not scored_docs:
+        return []
+
     scored_docs.sort(key=lambda x: x["score"], reverse=True)
+
+    # ── Boost exact matches ──────────────────────────────
+    query_lower = query.lower().strip()
+    for doc in scored_docs:
+        text = doc.get("text", "").lower()
+        source = doc.get("source", "").lower()
+        if query_lower in text or query_lower in source:
+            doc["score"] *= 3.0  # significant boost for exact substring match
+
+    # Re-sort after boosting
+    scored_docs.sort(key=lambda x: x["score"], reverse=True)
+
+    # ── Filter low-score noise ───────────────────────────
+    # N-gram partial matches on unrelated docs produce very low scores.
+    # Use a dynamic threshold: at least 15% of the top score.
+    top_score = scored_docs[0]["score"]
+    min_threshold = top_score * 0.15
+    scored_docs = [d for d in scored_docs if d["score"] >= min_threshold]
+
     return scored_docs[:limit]
