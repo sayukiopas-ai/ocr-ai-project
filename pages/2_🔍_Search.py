@@ -20,16 +20,17 @@ st.markdown("ค้นหาเอกสารด้วย Keyword")
 st.markdown("---")
 
 # ─── Search Input ────────────────────────────────────────
-query = st.text_input(
-    "🔎 ค้นหา",
-    placeholder="พิมพ์คำค้นหา เช่น 'สัญญาเช่า' หรือ 'revenue report'...",
-)
+with st.form("search_form"):
+    query = st.text_input(
+        "🔎 ค้นหา",
+        placeholder="พิมพ์คำค้นหา เช่น 'สัญญาเช่า' หรือ 'revenue report'...",
+    )
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        top_n = st.slider("จำนวนผลลัพธ์", min_value=1, max_value=20, value=5)
+    submitted = st.form_submit_button("🔍 ค้นหา", use_container_width=True)
 
-col1, col2 = st.columns([1, 3])
-with col1:
-    top_n = st.slider("จำนวนผลลัพธ์", min_value=1, max_value=20, value=5)
-
-if query:
+if submitted and query:
     with st.spinner("🔍 กำลังค้นหา..."):
         try:
             from modules.bm25_search import bm25_search
