@@ -6,6 +6,52 @@ import re
 
 from modules import embedder, vector_store, bm25_search, reranker
 
+# Thai filler / stopwords to strip from queries before searching.
+# Keeps the actual search terms (e.g. "ค้นหา SCAN ME" → "SCAN ME").
+_QUERY_FILLERS = frozenset(
+    {
+        "ค้นหา",
+        "ค้น",
+        "หา",
+        "ข้อมูล",
+        "ของ",
+        "เกี่ยวกับ",
+        "เรื่อง",
+        "ใน",
+        "ที่",
+        "และ",
+        "หรือ",
+        "กับ",
+        "จาก",
+        "กรุณา",
+        "บอก",
+        "ให้",
+        "นหา",
+        "อะไร",
+        "คืออะไร",
+        "บ้าง",
+        "มีอะไร",
+        "ช่วย",
+        "ดู",
+        "ขอ",
+    }
+)
+
+
+def _clean_query(query: str) -> str:
+    """
+    Strip Thai filler/stopwords from query so that
+    'ค้นหา SCAN ME' behaves the same as 'SCAN ME'.
+
+    Only removes words that are *exactly* a filler; keeps partial matches
+    (e.g. 'ค้นหาข้อมูล' as a single token is NOT stripped).
+    Returns original query if cleaning would leave it empty.
+    """
+    parts = re.split(r"\s+", query.strip())
+    cleaned = [p for p in parts if p not in _QUERY_FILLERS]
+    result = " ".join(cleaned).strip()
+    return result if result else query.strip()
+
 
 def hybrid_search(
     query: str,
@@ -17,6 +63,7 @@ def hybrid_search(
     Perform hybrid search: vector + BM25, then re-rank.
 
     Pipeline:
+        0. Clean query (strip Thai filler words)
         1. Embed query → Vector search (top-20)
         2. BM25 search (top-20)
         3. Merge & deduplicate
@@ -31,11 +78,14 @@ def hybrid_search(
     Returns:
         List of re-ranked document dicts.
     """
-    # 0. Filename/source keyword search (helps direct file-name queries)
-    source_results = _search_by_source_name(query, limit=vector_limit)
+    # 0. Clean query — strip filler words for consistent results
+    clean_q = _clean_query(query)
+
+    # 0b. Filename/source keyword search (helps direct file-name queries)
+    source_results = _search_by_source_name(clean_q, limit=vector_limit)
 
     # 1. Vector search
-    query_vector = embedder.embed_query(query)
+    query_vector = embedder.embed_query(clean_q)
     vector_results = vector_store.vector_search(
         query_vector=query_vector,
         limit=vector_limit,
@@ -43,7 +93,7 @@ def hybrid_search(
 
     # 2. BM25 search
     bm25_results = bm25_search.bm25_search(
-        query=query,
+        query=clean_q,
         limit=bm25_limit,
     )
 
@@ -53,9 +103,9 @@ def hybrid_search(
     if not merged:
         return []
 
-    # 4. Re-rank
+    # 4. Re-rank (use cleaned query for consistent scoring)
     reranked = reranker.rerank(
-        query=query,
+        query=clean_q,
         documents=merged,
         top_n=final_top_n,
     )
