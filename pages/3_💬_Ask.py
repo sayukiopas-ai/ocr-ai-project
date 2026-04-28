@@ -80,7 +80,7 @@ if question:
             # Final answer without cursor
             full_answer = "".join(answer_parts)
             placeholder.markdown(full_answer)
-            status_line.markdown("✅ เสร็จสิ้น")
+            status_line.markdown("✅เสร็จสิ้น") 
 
             # Show sources
             if sources:

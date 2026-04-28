@@ -16,7 +16,7 @@ from modules.sidebar import show_sidebar
 show_sidebar()
 
 st.markdown("# 🏠 Home / 📄 Upload & OCR")
-st.markdown("อัปโหลดเอกสาร แล้วระบบจะดึงข้อความ, ตัดเป็น chunks, และจัดเก็บเข้า Knowledge Base")
+st.markdown("อัปโหลดเอกสาร ระบบจะดึงข้อความ,จัดเก็บเข้า Knowledge Base")
 
 st.markdown("---")
 

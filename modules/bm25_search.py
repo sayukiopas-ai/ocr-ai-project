@@ -148,15 +148,37 @@ def bm25_search(
 
     # Pair scores with documents and sort.
     # BM25Plus assigns non-zero scores to ALL docs via its delta parameter;
-    # require at least one query token to appear in the document text.
+    # require meaningful token overlap with the document text.
     query_token_set = set(tokenized_query)
+    query_lower = query.lower().strip()
+
+    # Extract full Thai fragments from the query for exact substring matching.
+    thai_query_fragments = re.findall(r"[\u0e00-\u0e7f]+", query_lower)
+
     scored_docs = []
     for doc, score in zip(docs, scores):
         if score <= 0:
             continue
         combined = f"{doc.get('source', '')} {doc.get('text', '')}".lower()
-        if any(tok in combined for tok in query_token_set):
-            scored_docs.append({**doc, "score": float(score)})
+
+        # ── Relevance gate ───────────────────────────────
+        # For Thai queries: require at least one FULL Thai fragment from
+        # the query to appear as a substring in the document.
+        # N-gram-only overlap (e.g. 2-char "เท" matching everywhere) is
+        # not sufficient — it produces too many false positives.
+        if thai_query_fragments:
+            has_thai_match = any(frag in combined for frag in thai_query_fragments)
+        else:
+            has_thai_match = False
+
+        # For English/number tokens: standard token-in-text check.
+        eng_tokens = [t for t in query_token_set if re.match(r"[a-z0-9]+$", t)]
+        has_eng_match = any(tok in combined for tok in eng_tokens) if eng_tokens else False
+
+        if not has_thai_match and not has_eng_match:
+            continue
+
+        scored_docs.append({**doc, "score": float(score)})
 
     if not scored_docs:
         return []
@@ -164,7 +186,6 @@ def bm25_search(
     scored_docs.sort(key=lambda x: x["score"], reverse=True)
 
     # ── Boost exact matches ──────────────────────────────
-    query_lower = query.lower().strip()
     for doc in scored_docs:
         text = doc.get("text", "").lower()
         source = doc.get("source", "").lower()
@@ -175,10 +196,10 @@ def bm25_search(
     scored_docs.sort(key=lambda x: x["score"], reverse=True)
 
     # ── Filter low-score noise ───────────────────────────
-    # N-gram partial matches on unrelated docs produce very low scores.
-    # Use a dynamic threshold: at least 15% of the top score.
+    # N-gram partial matches on unrelated docs produce low scores.
+    # Use a dynamic threshold: at least 30% of the top score.
     top_score = scored_docs[0]["score"]
-    min_threshold = top_score * 0.15
+    min_threshold = top_score * 0.30
     scored_docs = [d for d in scored_docs if d["score"] >= min_threshold]
 
     return scored_docs[:limit]
