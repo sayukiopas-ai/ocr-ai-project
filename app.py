@@ -159,3 +159,31 @@ try:
     col3.metric("Status", "✅" if info.get("status") == "green" else "❌")
 except Exception as e:
     st.info(f"ℹ️ ยังไม่ได้เชื่อมต่อ Qdrant — {e}")
+
+# ─── Upload History ──────────────────────────────────────
+st.markdown("---")
+st.markdown("### 🕑 ประวัติการอัปโหลดล่าสุด")
+
+import datetime
+import config
+
+upload_path = Path(config.UPLOAD_DIR)
+if upload_path.exists():
+    files = [f for f in upload_path.iterdir() if f.is_file() and f.name != ".gitkeep"]
+    # Sort by modification time, newest first
+    files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+    recent = files[:3]
+
+    if recent:
+        for f in recent:
+            mtime = datetime.datetime.fromtimestamp(f.stat().st_mtime)
+            size_kb = f.stat().st_size / 1024
+            date_str = mtime.strftime("%d/%m/%Y %H:%M:%S")
+            st.markdown(
+                f"- 📄 **{f.name}** — {size_kb:.1f} KB · "
+                f"🗓️ {date_str}"
+            )
+    else:
+        st.caption("ยังไม่มีไฟล์ที่อัปโหลด")
+else:
+    st.caption("ยังไม่มีไฟล์ที่อัปโหลด")

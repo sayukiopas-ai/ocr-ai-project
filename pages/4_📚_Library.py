@@ -91,7 +91,7 @@ for fname in all_filenames:
     in_qdrant = fname in qdrant_filenames
     chunk_count = qdrant_sources.get(fname, 0)
 
-    col1, col2, col3, col4 = st.columns([4, 2, 2, 2])
+    col1, col2, col3, col_dl, col4 = st.columns([4, 2, 2, 2, 2])
 
     # File info
     col1.markdown(f"**📄 {fname}**")
@@ -109,6 +109,18 @@ for fname in all_filenames:
         col3.caption(f"🧠 {chunk_count} chunks")
     else:
         col3.caption("🧠 ❌ ไม่มีใน Qdrant")
+
+    # Download original file
+    if on_disk:
+        with open(upload_dir / fname, "rb") as fp:
+            col_dl.download_button(
+                label="📥 เปิดไฟล์",
+                data=fp,
+                file_name=fname,
+                key=f"dl_lib_{fname}",
+            )
+    else:
+        col_dl.caption("—")
 
     # Delete action logic
     if st.session_state.delete_confirm == fname:

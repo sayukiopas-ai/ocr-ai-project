@@ -26,13 +26,56 @@ st.markdown("---")
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
+# Welcome message when no chat history
+if not st.session_state.chat_history:
+    with st.chat_message("assistant"):
+        st.markdown(
+            """
+            <style>
+            .typewriter-container {
+                position: relative;
+                display: inline-block;
+            }
+            .typewriter-hidden {
+                visibility: hidden;
+                white-space: nowrap;
+                border-right: 0.4em solid transparent; /* match space of cursor */
+            }
+            .typewriter-text {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                overflow: hidden;
+                white-space: nowrap;
+                border-right: 0.4em solid transparent;
+                animation: typing 1.5s steps(40, end) forwards, blink-cursor 0.5s step-end 7 forwards;
+                width: 0;
+            }
+            @keyframes typing {
+                from { width: 0 }
+                to { width: 100% }
+            }
+            @keyframes blink-cursor {
+                from { border-color: rgba(255,255,255,0.7) }
+                50%, to { border-color: transparent }
+            }
+            </style>
+            <div class="typewriter-container">
+                <div class="typewriter-hidden">สวัสดีครับ วันนี้ให้ช่วยเหลืออะไรดีครับ 😊</div>
+                <div class="typewriter-text">สวัสดีครับ วันนี้ให้ช่วยเหลืออะไรดีครับ 😊</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
 # Display chat history
 for msg in st.session_state.chat_history:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
         if msg.get("sources"):
             with st.expander("📚 แหล่งอ้างอิง", expanded=False):
-                for src in msg["sources"]:
+                for j, src in enumerate(msg["sources"]):
                     excerpt = (
                         src.get("text_excerpt")
                         or src.get("text_preview")
@@ -45,6 +88,17 @@ for msg in st.session_state.chat_history:
                         f'</div>',
                         unsafe_allow_html=True,
                     )
+                    # Download original file
+                    import config
+                    _fpath = Path(config.UPLOAD_DIR) / src["source"]
+                    if _fpath.exists():
+                        with open(_fpath, "rb") as _fp:
+                            st.download_button(
+                                label="📥 เปิดไฟล์ต้นฉบับ",
+                                data=_fp,
+                                file_name=src["source"],
+                                key=f"dl_hist_{id(msg)}_{j}",
+                            )
                     if excerpt.strip():
                         st.text(excerpt)
                     else:
@@ -85,7 +139,7 @@ if question:
             # Show sources
             if sources:
                 with st.expander("📚 แหล่งอ้างอิง", expanded=False):
-                    for src in sources:
+                    for j, src in enumerate(sources):
                         excerpt = (
                             src.get("text_excerpt")
                             or src.get("text_preview")
@@ -100,6 +154,17 @@ if question:
                             f'</div>',
                             unsafe_allow_html=True,
                         )
+                        # Download original file
+                        import config
+                        _fpath = Path(config.UPLOAD_DIR) / src["source"]
+                        if _fpath.exists():
+                            with open(_fpath, "rb") as _fp:
+                                st.download_button(
+                                    label="📥 เปิดไฟล์ต้นฉบับ",
+                                    data=_fp,
+                                    file_name=src["source"],
+                                    key=f"dl_live_{j}",
+                                )
                         if excerpt.strip():
                             st.text(excerpt)
                         else:

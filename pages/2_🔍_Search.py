@@ -66,6 +66,20 @@ if submitted and query:
                         )
                         meta_cols[3].markdown(f"**ที่มา:** {search_source}")
 
+                        # Download original file button
+                        import config
+                        file_path = Path(config.UPLOAD_DIR) / source
+                        if file_path.exists():
+                            with open(file_path, "rb") as fp:
+                                st.download_button(
+                                    label="📥 เปิดไฟล์ต้นฉบับ",
+                                    data=fp,
+                                    file_name=source,
+                                    key=f"dl_search_{i}_{source}",
+                                )
+                        else:
+                            st.caption("⚠️ ไม่พบไฟล์ต้นฉบับบน disk")
+
                         st.markdown("---")
                         st.markdown(text)
 
